@@ -346,6 +346,15 @@ namespace StackExchange.Redis
         void HashSet(RedisKey key, HashEntry[] hashFields, CommandFlags flags = CommandFlags.None);
 
         /// <summary>
+        /// Sets the specified fields of an object to their respective values in the hash stored at key. This command overwrites any specified fields that already exist in the hash, leaving other unspecified fields untouched. If key does not exist, a new key holding a hash is created.
+        /// </summary>
+        /// <param name="key">The key of the hash.</param>
+        /// <param name="hashFields">The object to set in the hash.</param>
+        /// <param name="flags">The flags to use for this operation.</param>
+        /// <remarks>https://redis.io/commands/hmset</remarks>
+        void HashSet(RedisKey key, object hashFields, CommandFlags flags = CommandFlags.None);
+
+        /// <summary>
         /// Sets field in the hash stored at key to value. If key does not exist, a new key holding a hash is created. If field already exists in the hash, it is overwritten.
         /// </summary>
         /// <param name="key">The key of the hash.</param>

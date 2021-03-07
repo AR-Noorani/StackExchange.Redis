@@ -51,6 +51,7 @@ namespace StackExchange.Redis.Tests
                 RedisKey key = Me();
                 db.KeyDelete(key, CommandFlags.FireAndForget);
                 db.HashSet(key, "a", 1, flags: CommandFlags.FireAndForget);
+
                 db.HashSet(key, new[] {
                     new HashEntry("b", 2) }, CommandFlags.FireAndForget);
                 db.HashSet(key, new[] {
@@ -65,11 +66,17 @@ namespace StackExchange.Redis.Tests
                     new HashEntry("i", 9),
                     new HashEntry("j", 10),
                     new HashEntry("k", 11)}, CommandFlags.FireAndForget);
+
+                db.HashSet(key, new { l = 12 }, CommandFlags.FireAndForget);
+                db.HashSet(key, new { m = 13, n = 14 }, CommandFlags.FireAndForget);
+                db.HashSet(key, new { o = 15, p = 16, q = 17 }, CommandFlags.FireAndForget);
+                db.HashSet(key, new { r = 18, s = 19, t = 20, u = 21 }, CommandFlags.FireAndForget);
+
                 var vals = db.HashGetAll(key);
                 string s = string.Join(",", vals.OrderByDescending(x => (double)x.Value).Select(x => x.Name));
-                Assert.Equal("k,j,i,h,g,f,e,d,c,b,a", s);
+                Assert.Equal("u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a", s);
                 s = string.Join(",", vals.OrderBy(x => (double)x.Value).Select(x => x.Value));
-                Assert.Equal("1,2,3,4,5,6,7,8,9,10,11", s);
+                Assert.Equal("1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21", s);
             }
         }
 

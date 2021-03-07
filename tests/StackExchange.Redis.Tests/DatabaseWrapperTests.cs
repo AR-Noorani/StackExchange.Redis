@@ -174,6 +174,14 @@ namespace StackExchange.Redis.Tests
         }
 
         [Fact]
+        public void HashSet_3()
+        {
+            var hashFields = new { };
+            wrapper.HashSet("key", hashFields, CommandFlags.None);
+            mock.Verify(_ => _.HashSet("prefix:key", hashFields, CommandFlags.None));
+        }
+
+        [Fact]
         public void HashStringLength()
         {
             wrapper.HashStringLength("key","field", CommandFlags.None);

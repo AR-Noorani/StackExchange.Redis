@@ -20,6 +20,23 @@ namespace StackExchange.Redis
 
         public int Database { get; }
 
+        private readonly HashSet<Type> ConvertableTypes =
+            new HashSet<Type> {
+                typeof(int),
+                typeof(int?),
+                typeof(long),
+                typeof(long?),
+                typeof(double),
+                typeof(double?),
+                typeof(string),
+                typeof(byte[]),
+                typeof(bool),
+                typeof(bool?),
+
+                typeof(RedisKey),
+                typeof(RedisValue)
+            };
+
         public IBatch CreateBatch(object asyncState)
         {
             if (this is IBatch) throw new NotSupportedException("Nested batches are not supported");
@@ -442,6 +459,27 @@ namespace StackExchange.Redis
             var msg = GetHashSetMessage(key, hashFields, flags);
             if (msg == null) return;
             ExecuteSync(msg, ResultProcessor.DemandOK);
+        }
+
+        public void HashSet(RedisKey key, object hashFields, CommandFlags flags = CommandFlags.None)
+        {
+            if (hashFields == null) throw new ArgumentNullException(nameof(hashFields));
+            ExtractFields(hashFields, out HashEntry[] fields);
+            HashSet(key, fields, flags);
+        }
+
+        private void ExtractFields(object fs, out HashEntry[] fields)
+        {
+            var hashFields = new List<HashEntry>();
+            var propertiesInfo = fs.GetType().GetProperties();
+            foreach (var propertyInfo in propertiesInfo)
+                if (ConvertableTypes.Contains(propertyInfo.PropertyType))
+                {
+                    var name = propertyInfo.Name;
+                    var value = propertyInfo.GetValue(fs);
+                    hashFields.Add(new HashEntry(name, value.ToString()));
+                }
+            fields = hashFields.ToArray();
         }
 
         public long HashStringLength(RedisKey key, RedisValue hashField, CommandFlags flags = CommandFlags.None)
